@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Glumcidb</string>
+    <string name="activity_first_toolbar_title" />
+    <string name="fragment_detal_action_update" >Add</string>
+    <string name="fragment_master_action_create" >Edit</string>
+
+    <string name="fragment_detal_action_delete">Delete</string>
+</resources>

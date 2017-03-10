@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:weightSum="1"
+android:orientation="vertical"
+app:layout_collapseParallaxMultiplier="0.0">
+
+
+
+<!-- Toolbar is a standard toolbar for use within application content. -->
+<android.support.v7.widget.Toolbar
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:title="@string/activity_first_toolbar_title"
+    app:layout_scrollFlags="scroll|enterAlways" />
+
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_name"
+    android:textSize="24sp"
+    android:textStyle="normal|bold|italic" />
+
+
+
+
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_description"
+    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_rating"
+    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_datumRodjenja"
+    android:textSize="18sp"
+    android:textStyle="normal|bold" />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_datumSmrti"
+    android:textSize="18sp"
+    android:lineSpacingExtra="8sp"
+    android:textStyle="normal|bold" />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/tv_filmovi"
+    android:textSize="18sp"
+    android:lineSpacingExtra="8sp"
+    android:textStyle="normal|bold" />
+</LinearLayout>
+
