@@ -24,8 +24,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     //i pocetnu verziju baze. Obicno krece od 1
     private static final int    DATABASE_VERSION = 1;
 
-    private Dao<Glumcib, Integer> mProductDao = null;
-
+    private Dao<Glumcib, Integer> GlumciDao = null;
+    private Dao<Movie, Integer> mProductDao = null;
     //Potrebno je dodati konstruktor zbog pravilne inicijalizacije biblioteke
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,6 +36,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
+            TableUtils.createTable(connectionSource, Movie.class);
             TableUtils.createTable(connectionSource, Glumcib.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -46,28 +47,37 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
+            TableUtils.dropTable(connectionSource, Movie.class, true);
             TableUtils.dropTable(connectionSource, Glumcib.class, true);
             onCreate(db, connectionSource);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
-    //jedan Dao objekat sa kojim komuniciramo. Ukoliko imamo vise tabela
-    //potrebno je napraviti Dao objekat za svaku tabelu
-    public Dao<Glumcib, Integer> getProductDao() throws SQLException {
+    public Dao<Movie, Integer> getMovieDao() throws SQLException {
         if (mProductDao == null) {
-            mProductDao = getDao(Glumcib.class);
+            mProductDao = getDao(Movie.class);
         }
 
         return mProductDao;
+    }
+    //jedan Dao objekat sa kojim komuniciramo. Ukoliko imamo vise tabela
+    //potrebno je napraviti Dao objekat za svaku tabelu
+    public Dao<Glumcib, Integer> getGlumcibDao() throws SQLException {
+        if (GlumciDao == null) {
+            GlumciDao = getDao(Glumcib.class);
+        }
+
+        return GlumciDao;
     }
 
     //obavezno prilikom zatvarnaj rada sa bazom osloboditi resurse
     @Override
     public void close() {
-        mProductDao = null;
 
+        mProductDao = null;
+        GlumciDao = null;
         super.close();
+
     }
 }

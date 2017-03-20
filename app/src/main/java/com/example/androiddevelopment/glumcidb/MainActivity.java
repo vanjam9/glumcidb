@@ -1,9 +1,19 @@
 package com.example.androiddevelopment.glumcidb;
 
+import android.animation.AnimatorSet;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,49 +22,33 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.example.androiddevelopment.glumcidb.db.DatabaseHelper;
 import com.example.androiddevelopment.glumcidb.db.Glumcib;
-import com.example.androiddevelopment.glumcidb.providers.GlumciProviders;
-import com.example.androiddevelopment.glumcidb.R;
+import com.example.androiddevelopment.glumcidb.providers.AboutDialog;
+import com.example.androiddevelopment.glumcidb.providers.PripremaPrefererences;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.squareup.picasso.Picasso;
+
 
 import java.sql.SQLException;
 import java.util.List;
 
 
-
 // Each activity extends Activity class
 public class MainActivity extends AppCompatActivity  {
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
 
 
 
-
+    private SharedPreferences prefs;
     private DatabaseHelper databaseHelper;
-
-
+    public static String kurac = "ACT";
+    public static String NOTIF_STATUS = "notif_statis";
 
     // onCreate method is a lifecycle method called when he activity is starting
     @Override
@@ -71,26 +65,44 @@ public class MainActivity extends AppCompatActivity  {
         Toast toast = Toast.makeText(getBaseContext(), "MainActivity.onCreate()", Toast.LENGTH_SHORT);
         toast.show();
         // Loads fruits from array resource
-        final List<String> GlumacNames = GlumciProviders.getGlumciNames();
 
-        // Creates an ArrayAdaptar from the array of String
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.list_item, GlumacNames);
-        ListView listView = (ListView) findViewById(R.id.listaGlumaca);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        // Assigns ArrayAdaptar to ListView
-        listView.setAdapter(dataAdapter);
-
-        // Starts the SecondActivity and sends it the selected URL as an extra data
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-                intent.putExtra("position", position);
-                startActivity(intent);
-            }
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final ListView listView = (ListView) findViewById(R.id.listaGlumaca);
 
 
-        });
+        ImageView imageView = (ImageView) findViewById(R.id.iv_image);
+
+//Loading image from below url into imageView
+
+        Picasso.with(this)
+                .load("https://i.ytimg.com/vi/Isk0K5__V7Y/hqdefault.jpg")
+                .into(imageView);
+
+        try {
+            List<Glumcib> list = getDatabaseHelper().getGlumcibDao().queryForAll();
+
+            ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, R.layout.list_item, list);
+            listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Glumcib p = (Glumcib) listView.getItemAtPosition(position);
+
+                    Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                    intent.putExtra(kurac, p.getId());
+                    startActivity(intent);
+                }
+            });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
     //Metoda koja komunicira sa bazom podataka
     public DatabaseHelper getDatabaseHelper() {
@@ -122,80 +134,63 @@ public class MainActivity extends AppCompatActivity  {
 
    private void addItem(){
 
-
-  final Dialog dialog = new Dialog(this);
+       final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_category_layout);
-       Button choosebtn = (Button) dialog.findViewById(R.id.choose);
+       Button dodaj = (Button) dialog.findViewById(R.id.dodaj);
 
-       choosebtn.setOnClickListener(new View.OnClickListener() {
+       dodaj.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
+
+
                Glumcib glumcib = new Glumcib();
 
-               EditText name = (EditText)dialog.findViewById(R.id.glumci_name);
+                   EditText name = (EditText) dialog.findViewById(R.id.glumci_name);
+               EditText description = (EditText) dialog.findViewById(R.id.glumci_biografija);
 
-               glumcib.setName("name");
+               EditText filmovi = (EditText) dialog.findViewById(R.id.filmovi);
+
+               glumcib.setName(name.getText().toString());
+               glumcib.setDescription(description.getText().toString());
+
+
+
+
+
 
 
                //pozovemo metodu create da bi upisali u bazu
-               try {
-                   getDatabaseHelper().getProductDao().create(glumcib);
-                   refresh();
-                   dialog.dismiss();
+                   try {
+                       getDatabaseHelper().getGlumcibDao().create(glumcib);
+                       boolean status = prefs.getBoolean(NOTIF_STATUS, false);
+
+                       if(status){
+                           showStatusMesage("Added new actor");
+
+                       }
 
 
-               } catch (SQLException e) {
-                   e.printStackTrace();
+                       refresh();
+                       dialog.dismiss();
+
+
+                   } catch (SQLException e) {
+                       e.printStackTrace();
+                   }
+
                }
 
 
-           }
        });
 
 dialog.show();}
-  /*  private void addItem(){
-        final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_category_layout);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        Button choosebtn = (Button) dialog.findViewById(R.id.choose);
-        choosebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        refresh();
+    }
 
-            }
-        });
-
-        final EditText productName = (EditText) dialog.findViewById(R.id.glumci_name);
-
-        Button ok = (Button) dialog.findViewById(R.id.ok);
-        ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = productName.getText().toString();
-
-                try {
-                    getDatabaseHelper().getProductDao().create(glumcib);
-
-                    refresh();
-
-
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Button cancel = (Button) dialog.findViewById(R.id.cancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-
-    }*/
 
     private void refresh() {
         ListView listview = (ListView) findViewById(R.id.listaGlumaca);
@@ -207,7 +202,7 @@ dialog.show();}
             {
                 try {
                     adapter.clear();
-                    List<Glumcib> list = getDatabaseHelper().getProductDao().queryForAll();
+                    List<Glumcib> list = getDatabaseHelper().getGlumcibDao().queryForAll();
 
                     adapter.addAll(list);
 
@@ -218,9 +213,24 @@ dialog.show();}
             }
         }
     }
-        @Override
+
+    private void showStatusMesage(String message){
+        NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(R.drawable.ic_launcher);
+        mBuilder.setContentTitle("Pripremni test");
+        mBuilder.setContentText(message);
+       // Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+
+        //mBuilder.setLargeIcon(bm);
+
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(1, mBuilder.build());
+    }
+
+    @Override
         public boolean onCreateOptionsMenu(Menu menu) {
-            getMenuInflater().inflate(R.menu.menu, menu);
+            getMenuInflater().inflate(R.menu.menu1, menu);
             return super.onCreateOptionsMenu(menu);
         }
 
@@ -234,8 +244,23 @@ dialog.show();}
                     break;
                 case R.id.action_update:
                     Toast.makeText(this, "Action " + getString(R.string.fragment_detal_action_update) + " executed.", Toast.LENGTH_SHORT).show();
+                    ImageView imageView = (ImageView) findViewById(R.id.iv_image);
+
+//Loading image from below url into imageView
+
+                    Picasso.with(this)
+                            .load("https://i.ytimg.com/vi/Isk0K5__V7Y/hqdefault.jpg")
+                            .into(imageView);
+                    AlertDialog alertDialog = new AboutDialog(this).prepareDialog();
+                    alertDialog.show();
                     break;
-                case R.id.action_delete:
+                case R.id.preferences:
+
+                    startActivity(new Intent(MainActivity.this, PripremaPrefererences.class));
+
+
+
+
                     Toast.makeText(this, "Action " + getString(R.string.fragment_detal_action_delete) + " executed.", Toast.LENGTH_SHORT).show();
                     break;
             }

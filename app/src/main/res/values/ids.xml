@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="priprema_glumci_list" type="id" />
+    <item name="add_movie" type="id" />
+    <item name="movie_name" type="id" />
+    <item name="movie_genre" type="id" />
+    <item name="movie_year" type="id" />
+</resources>

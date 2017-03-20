@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Glumcidb.iml" filepath="$PROJECT_DIR$/Glumcidb.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/glumcidb.iml" filepath="$PROJECT_DIR$/glumcidb.iml" />
     </modules>
   </component>
 </project>

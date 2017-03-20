@@ -5,4 +5,11 @@
     <string name="fragment_master_action_create" >Edit</string>
 
     <string name="fragment_detal_action_delete">Delete</string>
+    <string name="dialog_about_title" >About dialog</string>
+
+    <string name="dialog_about_no" >no</string>
+    <string name="dialog_about_yes" >yez</string>
+    <string name="dodaj">DoDaJ</string>
+    <string name="activity_main_toolbar_title" />
+    <string name="activity_settings_name" />
 </resources>
